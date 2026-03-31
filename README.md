@@ -1,5 +1,9 @@
 # 3-Intro-Machine-Learning
-The third assignment for CS429.
+The third assignment for CS429. To download and decompress the dataset, execute:
+```
+tar -zxf aclImdb_v1.tar.gz
+```
+The file is given at https://ai.stanford.edu/~amaas/data/sentiment/.
 
 ## TODO:
 - Task 1
