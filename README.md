@@ -27,7 +27,7 @@ Environment method I used:
 ```console
 python3 -m venv assign3-env
 source assign3-env/bin/activate
-pip install "numpy<2" pandas matplotlib idx2numpy scikit-learn
+pip install "numpy<2" pandas matplotlib scikit-learn nltk joblib torch
 ```
 Deactive with:
 ```console
