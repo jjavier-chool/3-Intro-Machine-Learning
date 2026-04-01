@@ -2,6 +2,9 @@
 assign3-env/
 aclImdb/
 aclImdb_v1.tar.gz
+*.pkl
+*.csv
+test.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
