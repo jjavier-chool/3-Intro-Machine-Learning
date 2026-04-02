@@ -100,7 +100,7 @@ def build_csv():
 # =========================
 
 def tokenizer(text):
-  text = re.sub('<[^>]*>', '', text)
+  text = re.sub('<[^>]*>', ' ', text)
   emoticons = re.findall(r'(?::|;|=)(?:-)?(?:\)|\(|D|P)', text)
   text = re.sub('[\W]+', ' ', text.lower()) + \
          ' '.join(emoticons).replace('-', '')
