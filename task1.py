@@ -4,7 +4,6 @@ import urllib.request
 import time
 import sys
 import pandas as pd
-import numpy as np
 import re
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -26,6 +25,8 @@ DATA_TAR = 'aclImdb_v1.tar.gz'
 DATA_DIR = 'aclImdb'
 CSV_FILE = 'movie_data.csv'
 
+start_time: float
+
 # Download Dataset
 def download_dataset():
   if os.path.exists(DATA_DIR):
@@ -36,8 +37,8 @@ def download_dataset():
     print("Downloading dataset...") #Ellipses feel good for these prints lol
 
     def reporthook(count, block_size, total_size):
+      global start_time
       if count == 0:
-        global start_time
         start_time = time.time()
         return
       duration = time.time() - start_time
@@ -93,7 +94,7 @@ def build_csv():
 def tokenizer(text):
   text = re.sub('<[^>]*>', ' ', text)
   emoticons = re.findall(r'(?::|;|=)(?:-)?(?:\)|\(|D|P)', text)
-  text = re.sub('[\W]+', ' ', text.lower()) + \
+  text = re.sub(r'[\W]+', ' ', text.lower()) + \
          ' '.join(emoticons).replace('-', '')
   return [w for w in text.split() if w not in stop]
 
