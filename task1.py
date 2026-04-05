@@ -26,10 +26,7 @@ DATA_TAR = 'aclImdb_v1.tar.gz'
 DATA_DIR = 'aclImdb'
 CSV_FILE = 'movie_data.csv'
 
-# =========================
 # Download Dataset
-# =========================
-
 def download_dataset():
   if os.path.exists(DATA_DIR):
     print("Dataset already extracted.")
@@ -62,10 +59,7 @@ def download_dataset():
     tar.extractall() #Keep in mind that this takes a long while, it's 100019 extractions.
   print("Extraction complete.")
 
-# =========================
 # Build CSV
-# =========================
-
 def build_csv():
   if os.path.exists(CSV_FILE):
     print("CSV already exists.")
@@ -95,10 +89,7 @@ def build_csv():
   print("df:", df.shape)
   print("CSV created.")
 
-# =========================
 # Tokenizer
-# =========================
-
 def tokenizer(text):
   text = re.sub('<[^>]*>', ' ', text)
   emoticons = re.findall(r'(?::|;|=)(?:-)?(?:\)|\(|D|P)', text)
@@ -106,10 +97,7 @@ def tokenizer(text):
          ' '.join(emoticons).replace('-', '')
   return [w for w in text.split() if w not in stop]
 
-# =========================
 # TF-IDF Processing
-# =========================
-
 def process_data():
   print("Loading CSV...")
   df = pd.read_csv(CSV_FILE, encoding='utf-8')
@@ -130,7 +118,9 @@ def process_data():
     tokenizer=tokenizer,
     token_pattern=None, #To ignore warning message about being unused
     lowercase=False,
-    max_features=20000
+    max_features=10000, #Smaller?
+    min_df=5, #Less noise?
+    ngram_range=(1,2) #Better detect negation???
   )
 
   X_train_tfidf = tfidf.fit_transform(X_train)
@@ -150,10 +140,7 @@ def process_data():
 
   print("Task 1 completed successfully.")
 
-# =========================
-# MAIN
-# =========================
-
+# Main
 if __name__ == "__main__":
   download_dataset()
   build_csv()
