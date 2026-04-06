@@ -14,7 +14,7 @@ Code is adopted and modified from given tutorial in the instructions.
 Students: Jackie Javier, Pranitha Achanta, Robert McDaniels
 """
 # Manual tuning
-HIDDEN = [128, 64, 8]
+HIDDEN = [256, 64, 8]
 LEARNING_RATE = 0.00005
 WEIGHT_DECAY = LEARNING_RATE # Seems to work well
 EPOCHS = 10
@@ -100,7 +100,7 @@ def evaluate(model, loader):
   return correct / total
 
 # TASKS 3-4: Baseline Training
-def baseline_training():
+def baseline_training(model):
   print("\n===== BASELINE TRAINING =====")
 
   train_dataset = TensorDataset(X_train, y_train)
@@ -108,8 +108,6 @@ def baseline_training():
 
   train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
   test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
-
-  model = FNN(input_dim)
 
   #evaluate(model, test_loader)
 
@@ -178,5 +176,5 @@ def kfold_training():
 
 # Main
 if __name__ == "__main__":
-  baseline_training()
+  baseline_training(model = FNN(input_dim))
   kfold_training()
