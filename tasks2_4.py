@@ -96,7 +96,7 @@ def evaluate(model, loader):
   with torch.no_grad():
     for i, data in enumerate(loader, 0):
       inputs, targets = data
-      outputs = model(inputs) > 0.5
+      outputs = torch.sigmoid(model(inputs)) > 0.5
 
       total += targets.size(0)
       correct += (outputs == targets).sum().item()
