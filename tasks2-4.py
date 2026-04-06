@@ -14,10 +14,9 @@ Code is adopted and modified from given tutorial in the instructions.
 Students: Jackie Javier, Pranitha Achanta, Robert McDaniels
 """
 # Manual tuning
-HIDDEN1 = 512
-HIDDEN2 = 256
-LEARNING_RATE = 0.0005
-WEIGHT_DECAY = 1e-4
+HIDDEN = [128, 64, 8]
+LEARNING_RATE = 0.00005
+WEIGHT_DECAY = LEARNING_RATE # Seems to work well
 EPOCHS = 10
 BATCH_SIZE = 128
 K_FOLDS = 5
@@ -44,20 +43,19 @@ input_dim = X_train.shape[1]
 class FNN(nn.Module):
   def __init__(self, input_dim):
     super(FNN, self).__init__()
+    SZ = [input_dim, *HIDDEN]
     self.net = nn.Sequential(
-      nn.Linear(input_dim, HIDDEN1),
-      nn.ReLU(),
-      nn.Linear(HIDDEN1, HIDDEN2),
-      nn.ReLU(),
-      nn.Linear(HIDDEN2, 2)
+      *(L for (i, o) in zip(SZ, SZ[1:]) for L in [nn.Linear(i, o), nn.ReLU()]),
+      nn.Linear(SZ[-1], 1),
+      #nn.Sigmoid()
     )
 
   def forward(self, x):
-    return self.net(x)
+    return self.net(x).squeeze()
 
 # TASK 3: Train Function
 def train_model(model, loader):
-  loss_function = nn.CrossEntropyLoss()
+  loss_function = nn.BCEWithLogitsLoss()
   optimizer = optim.Adam(
     model.parameters(),
     lr=LEARNING_RATE,
@@ -74,7 +72,7 @@ def train_model(model, loader):
       optimizer.zero_grad()
 
       outputs = model(inputs)
-      loss = loss_function(outputs, targets)
+      loss = loss_function(outputs, targets.float())
 
       loss.backward()
       optimizer.step()
@@ -95,11 +93,10 @@ def evaluate(model, loader):
   with torch.no_grad():
     for i, data in enumerate(loader, 0):
       inputs, targets = data
-      outputs = model(inputs)
+      outputs = model(inputs) > 0.5
 
-      _, predicted = torch.max(outputs.data, 1)
       total += targets.size(0)
-      correct += (predicted == targets).sum().item()
+      correct += (outputs == targets).sum().item()
   return correct / total
 
 # TASKS 3-4: Baseline Training
@@ -113,6 +110,8 @@ def baseline_training():
   test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
   model = FNN(input_dim)
+
+  #evaluate(model, test_loader)
 
   start_time = time.time()
 
