@@ -37,6 +37,9 @@ X_test = torch.tensor(X_test.toarray(), dtype=torch.float32)
 y_train = torch.tensor(y_train, dtype=torch.long)
 y_test = torch.tensor(y_test, dtype=torch.long)
 
+X_full = torch.cat((X_train, X_test), dim=0)
+y_full = torch.cat((y_train, y_test), dim=0)
+
 input_dim = X_train.shape[1]
 
 # TASK 2: Define FNN
@@ -53,7 +56,7 @@ class FNN(nn.Module):
   def forward(self, x):
     return self.net(x).squeeze()
 
-# TASK 3: Train Function
+# Train Function
 def train_model(model, loader):
   loss_function = nn.BCEWithLogitsLoss()
   optimizer = optim.Adam(
@@ -109,8 +112,6 @@ def baseline_training(model):
   train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
   test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
-  #evaluate(model, test_loader)
-
   start_time = time.time()
 
   model = train_model(model, train_loader)
@@ -138,13 +139,13 @@ def kfold_training():
 
   start_time = time.time()
 
-  for fold, (train_idx, val_idx) in enumerate(kf.split(X_train)):
+  for fold, (train_idx, val_idx) in enumerate(kf.split(X_full)):
     print(f"\n--- Fold {fold+1}/{K_FOLDS} ---")
 
-    X_tr = X_train[train_idx]
-    y_tr = y_train[train_idx]
-    X_val = X_train[val_idx]
-    y_val = y_train[val_idx]
+    X_tr = X_full[train_idx]
+    y_tr = y_full[train_idx]
+    X_val = X_full[val_idx]
+    y_val = y_full[val_idx]
 
     train_dataset = TensorDataset(X_tr, y_tr)
     val_dataset = TensorDataset(X_val, y_val)

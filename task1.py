@@ -119,7 +119,7 @@ def process_data():
     tokenizer=tokenizer,
     token_pattern=None, #To ignore warning message about being unused
     lowercase=False,
-    max_features=10000, #Smaller?
+    max_features=20000, #Smaller?
     min_df=5, #Less noise?
     ngram_range=(1,2) #Better detect negation???
   )
