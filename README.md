@@ -6,20 +6,20 @@ tar -zxf aclImdb_v1.tar.gz
 The file is given at https://ai.stanford.edu/~amaas/data/sentiment/.
 
 ## TODO:
-- Task 1
-- Task 2
-- Task 3
-- Task 4
-- Task 5
+- Task 5: test2.py sufficient? Tune for 5.1 and 5.2 differently.
+- Ensure all previous tasks are also sufficient.
 - Report on Overleaf
 
 ## How to Run
-For Tasks 3 and 4, run:
+For Tasks 1, 2-4, and 5, run:
 ```
-python task3.py
+python task1.py
 ```
 ```
-python task4.py
+python tasks2_4.py
+```
+```
+python task5.py
 ```
 It is probably necessary to downgrade numpy or test in a separate environment with numpy 1.0 due to some jank with numpy 2.0.
 
