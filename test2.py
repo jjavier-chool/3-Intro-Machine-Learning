@@ -59,7 +59,7 @@ class DropoutFNN(nn.Module):
       layers.append(nn.Dropout(p=DROPOUT_P))
 
     layers.append(nn.Linear(SZ[-1], 1))
-    self.net = nn.Sequential(*layers) #Finally define at the end
+    self.net = nn.Sequential(*layers)
 
   def forward(self, x):
     return self.net(x).squeeze()

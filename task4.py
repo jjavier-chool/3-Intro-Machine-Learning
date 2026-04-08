@@ -12,12 +12,12 @@ We learned how to use k-fold cross validation in scikit-learn. But the PyTorch t
 Reference: https://github.com/christianversloot/machine-learning-articles/blob/main/how-to-use-k-fold-cross-validation-with-pytorch.md
 '''
 
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import KFold
 import numpy as np
 
 from common import perf_timer
-from task1 import X_full, y_full
+from task1 import load_dataset
 from task2 import FNN
 from task3 import HIDDEN, BATCH_SIZE, train_model, evaluate
 
@@ -32,17 +32,14 @@ def kfold_training():
   train_accs = []
   val_accs = []
 
+  dataset = load_dataset()
+
   with perf_timer() as timer:
-    for fold, (train_idx, val_idx) in enumerate(kf.split(X_full)):
+    for fold, (train_idx, val_idx) in enumerate(kf.split(dataset.full)):
         print(f"\n--- Fold {fold+1}/{K_FOLDS} ---")
 
-        X_tr = X_full[train_idx]
-        y_tr = y_full[train_idx]
-        X_val = X_full[val_idx]
-        y_val = y_full[val_idx]
-
-        train_dataset = TensorDataset(X_tr, y_tr)
-        val_dataset = TensorDataset(X_val, y_val)
+        train_dataset = Subset(dataset.full, train_idx)
+        val_dataset = Subset(dataset.full, val_idx)
 
         train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)

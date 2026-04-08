@@ -32,7 +32,7 @@ class FNN(nn.Module):
     
     layers.append(nn.Linear(SZ[-1], 1))
     
-    self.net = nn.Sequential(*layers)
+    self.net = nn.Sequential(*layers) # Finally define at the end
   
   def __str__(self):
     return str(self.net)

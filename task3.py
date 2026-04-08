@@ -10,12 +10,12 @@ Task 3: Training a Baseline Model and Tuning the Hyperparameters.
 You are required to tune the FNN’s structure (the previous task) and try a few values for learning rate and weight decay (L2-regularization parameter), to obtain an accuracy as high as possible or ≥ 90%. Compare the accuracy and time cost to the logistic regression model in the textbook. Please feel free to add more layers and neurons to make the FNN as powerful as possible. If the training performance is bad, please use `torch.optim.Adam` which often has a better performance than torch.optim.SGD in deep learning.
 '''
 
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader
 import torch.optim as optim
 import torch.nn as nn
 import torch
 
-from task1 import X_train, y_train, X_test, y_test
+from task1 import load_dataset
 from common import perf_timer
 
 # Manual tuning
@@ -74,11 +74,10 @@ def evaluate(model, loader):
 def baseline_training(model):
   print("\n===== BASELINE TRAINING =====")
 
-  train_dataset = TensorDataset(X_train, y_train)
-  test_dataset = TensorDataset(X_test, y_test)
+  dataset = load_dataset()
 
-  train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-  test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
+  train_loader = DataLoader(dataset.train, batch_size=BATCH_SIZE, shuffle=True)
+  test_loader = DataLoader(dataset.test, batch_size=BATCH_SIZE)
 
   with perf_timer() as timer:
     print(model)
