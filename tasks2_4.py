@@ -14,9 +14,9 @@ Code is adopted and modified from given tutorial in the instructions.
 Students: Jackie Javier, Pranitha Achanta, Robert McDaniels
 """
 # Manual tuning
-HIDDEN = [256, 64, 8]
+HIDDEN = [128, 64, 6]
 LEARNING_RATE = 0.00005
-WEIGHT_DECAY = LEARNING_RATE # Seems to work well
+WEIGHT_DECAY = 0.0002
 EPOCHS = 10
 BATCH_SIZE = 128
 K_FOLDS = 5
@@ -44,14 +44,25 @@ input_dim = X_train.shape[1]
 
 # TASK 2: Define FNN
 class FNN(nn.Module):
-  def __init__(self, input_dim):
+  def __init__(self, dropout: list[float]|None = None):
     super(FNN, self).__init__()
     SZ = [input_dim, *HIDDEN]
+    use_dropout = dropout is not None
+    if dropout is None:
+      dropout = [0 for _ in HIDDEN]
     self.net = nn.Sequential(
-      *(L for (i, o) in zip(SZ, SZ[1:]) for L in [nn.Linear(i, o), nn.ReLU()]),
-      nn.Linear(SZ[-1], 1),
-      #nn.Sigmoid()
+      *(
+        L for (i, o, p) in zip(SZ, SZ[1:], dropout)
+          for L in [
+            nn.Linear(i, o), nn.ReLU(),
+            *([nn.Dropout(p)] if use_dropout else [])
+          ]
+      ),
+      nn.Linear(SZ[-1], 1)
     )
+  
+  def __str__(self):
+    return str(self.net)
 
   def forward(self, x):
     return self.net(x).squeeze()
@@ -114,6 +125,7 @@ def baseline_training(model):
 
   start_time = time.time()
 
+  print(model)
   model = train_model(model, train_loader)
 
   train_acc = evaluate(model, train_loader)
@@ -153,7 +165,7 @@ def kfold_training():
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
 
-    model = FNN(input_dim)
+    model = FNN()
 
     model = train_model(model, train_loader)
 
@@ -177,5 +189,5 @@ def kfold_training():
 
 # Main
 if __name__ == "__main__":
-  baseline_training(model = FNN(input_dim))
+  baseline_training(model = FNN())
   kfold_training()
