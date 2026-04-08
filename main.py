@@ -1,26 +1,28 @@
-def main(which: str = 'all'):
+def main(which: str = 'all', *rest):
   match which:
     case '1':
       from task1 import main
-      main()
+      main(*rest)
     
     case '2':
       print(f"Error: task {which} is not executable")
     
     case '3':
       from task3 import main
-      main()
+      main(*rest)
     
     case '4':
       from task4 import main
-      main()
+      main(*rest)
     
     case '5':
       from task5 import main
-      main()
+      main(*rest)
     
     case 'all':
-      print("All")
+      if rest:
+        print("Warning: Cannot pass extra arguments to all tasks")
+      
       import task1
       import task3
       import task4

@@ -21,53 +21,15 @@ from torch.utils.data import DataLoader, Subset
 from common import perf_timer
 from task1 import load_dataset
 from task2 import FNN
-from task3 import BATCH_SIZE, HIDDEN, baseline_training, train_model, evaluate
+from task3 import BATCH_SIZE, HIDDEN, train_model, evaluate
 
-DROPOUT = [0.6, 0.3, 0.3]
-DROPOUT_ENSEMBLE = [0.6, 0.3, 0.3]
+DROPOUT = [0.6, 0.4, 0.4]
+DROPOUT_ENSEMBLE = [0.6, 0.4, 0.4]
 ENSEMBLE_SIZE = 5
 
-# TODO: (consider task4 of the midterm?)
-
-def subtask1():
-  baseline_training(model=FNN(hidden=HIDDEN, dropout=DROPOUT))
-
-# Sampling for bagging, NOT disjoint
-def bootstrap_indices(n) -> np.ndarray:
-  return np.random.choice(n, n, replace=True)
-
-# Ensemble Evaluation
-def evaluate_ensemble(models, loader):
-  correct = 0
-  total = 0
-
-  for model in models:
-    model.eval()
-
-  with torch.no_grad():
-    for inputs, targets in loader:
-      probs_list = []
-
-      for model in models:
-        probs = torch.sigmoid(model(inputs))
-        probs_list.append(probs)
-
-      avg_probs = torch.mean(torch.stack(probs_list), dim=0)
-      outputs = avg_probs > 0.5
-
-      total += targets.size(0)
-      correct += (outputs == targets).sum().item()
-
-  return correct / total
-
-def subtask2():
+def subtask1(train_loader, test_loader):
   # Single Dropout Model
   print("\n===== DROPOUT MODEL =====")
-
-  dataset = load_dataset()
-
-  train_loader = DataLoader(dataset.train, batch_size=BATCH_SIZE, shuffle=True)
-  test_loader = DataLoader(dataset.test, batch_size=BATCH_SIZE)
 
   with perf_timer() as timer:
     dropout_model = FNN(hidden=HIDDEN, dropout=DROPOUT)
@@ -83,10 +45,36 @@ def subtask2():
   print(f"Test Accuracy:  {test_acc:.4f}")
   print(f"Time: {total_time:.2f} sec")
 
+  return test_acc
+
+# Sampling for bagging, NOT disjoint
+def bootstrap_indices(n) -> np.ndarray:
+  return np.random.choice(n, n, replace=True)
+
+# Ensemble Evaluation
+def evaluate_ensemble(models, loader):
+  correct = 0
+  total = 0
+
+  for m in models:
+    m.eval()
+
+  with torch.no_grad():
+    for inputs, targets in loader:
+      avg_probs = torch.mean(
+        torch.sigmoid(torch.stack([m(inputs) for m in models])), dim=0
+      )
+      outputs = avg_probs > 0.5
+
+      total += targets.size(0)
+      correct += (outputs == targets).sum().item()
+
+  return correct / total
+
+def subtask2(dataset, train_loader, test_loader):
   # Ensemble (Bagging)
   print("\n===== ENSEMBLE (BAGGING) =====")
 
-  dataset = load_dataset()
   with perf_timer() as timer:
     models = []
 
@@ -97,6 +85,14 @@ def subtask2():
       bag_loader = DataLoader(subset, batch_size=BATCH_SIZE, shuffle=True)
       model = FNN(hidden=HIDDEN, dropout=DROPOUT_ENSEMBLE)
       model = train_model(model, bag_loader)
+
+      train_acc = evaluate(model, train_loader)
+      test_acc = evaluate(model, test_loader)
+
+      print()
+      print(f"Model {i+1} Train Acc: {train_acc:.4f}")
+      print(f"Model {i+1} Test Acc:  {test_acc:.4f}")
+
       models.append(model)
 
     ensemble_acc = evaluate_ensemble(models, test_loader)
@@ -106,11 +102,28 @@ def subtask2():
   print("\nENSEMBLE RESULTS:")
   print(f"Test Accuracy: {ensemble_acc:.4f}")
   print(f"Time: {total_time:.2f} sec")
-  print(f"Is bagging better?: {ensemble_acc > test_acc}")
 
-def main():
-  subtask1()
-  subtask2()
+  return ensemble_acc
+
+def main(kw=""):
+  dataset = load_dataset()
+  train_loader = DataLoader(dataset.train, batch_size=BATCH_SIZE, shuffle=True)
+  test_loader = DataLoader(dataset.test, batch_size=BATCH_SIZE)
+
+  if kw:
+    try:
+      # Avoid retraining the base dropout and just use a provided target accuracy
+      test_acc = float(kw)
+    except ValueError:
+      print("Skipping base model")
+      test_acc = None
+  else:
+    test_acc = subtask1(train_loader, test_loader)
+  
+  ensemble_acc = subtask2(dataset, train_loader, test_loader)
+  
+  if test_acc is not None:
+    print(f"Is bagging better?: {ensemble_acc > test_acc}")
 
 if __name__ == "__main__":
   main()
