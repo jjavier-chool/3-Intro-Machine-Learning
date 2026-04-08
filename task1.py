@@ -120,8 +120,8 @@ def process_data():
     token_pattern=None, #To ignore warning message about being unused
     lowercase=False,
     max_features=20000, #Smaller?
-    min_df=5, #Less noise?
-    ngram_range=(1,2) #Better detect negation???
+    min_df=5, #Less noise
+    ngram_range=(1,2) #Better detect negation
   )
 
   X_train_tfidf = tfidf.fit_transform(X_train)
@@ -133,7 +133,6 @@ def process_data():
 
   #Save outputs
   print("Saving processed data...")
-  joblib.dump(tfidf, 'tfidf_vectorizer.pkl') #Just in case?
   joblib.dump(X_train_tfidf, 'X_train.pkl')
   joblib.dump(X_test_tfidf, 'X_test.pkl')
   joblib.dump(y_train, 'y_train.pkl')

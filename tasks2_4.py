@@ -16,10 +16,10 @@ Students: Jackie Javier, Pranitha Achanta, Robert McDaniels
 # Manual tuning
 HIDDEN = [256, 64, 8]
 LEARNING_RATE = 0.00005
-WEIGHT_DECAY = LEARNING_RATE # Seems to work well
+WEIGHT_DECAY = 1e-7
 EPOCHS = 10
 BATCH_SIZE = 128
-K_FOLDS = 5
+K_FOLDS = 10
 
 # Load Data
 print("Loading data...")
@@ -50,7 +50,6 @@ class FNN(nn.Module):
     self.net = nn.Sequential(
       *(L for (i, o) in zip(SZ, SZ[1:]) for L in [nn.Linear(i, o), nn.ReLU()]),
       nn.Linear(SZ[-1], 1),
-      #nn.Sigmoid()
     )
 
   def forward(self, x):
@@ -126,7 +125,7 @@ def baseline_training(model):
   print(f"Test Accuracy:  {test_acc:.4f}")
   print(f"Time: {total_time:.2f} sec")
 
-  return train_acc, test_acc, total_time
+  return test_acc
 
 # TASK 4: K-fold Cross Validation
 def kfold_training():
@@ -173,9 +172,10 @@ def kfold_training():
   print(f"Avg Validation Accuracy: {np.mean(val_accs):.4f}")
   print(f"Time: {total_time:.2f} sec")
 
-  return np.mean(train_accs), np.mean(val_accs), total_time
+  return np.mean(val_accs)
 
 # Main
 if __name__ == "__main__":
-  baseline_training(model = FNN(input_dim))
-  kfold_training()
+  acc1 = baseline_training(model = FNN(input_dim))
+  acc2 = kfold_training()
+  print(f"Is k-fold better?: {acc2 > acc1}")

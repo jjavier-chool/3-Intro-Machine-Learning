@@ -6,8 +6,7 @@ tar -zxf aclImdb_v1.tar.gz
 The file is given at https://ai.stanford.edu/~amaas/data/sentiment/.
 
 ## TODO:
-- Task 5: test2.py sufficient? Tune for 5.1 and 5.2 differently.
-- Ensure all previous tasks are also sufficient.
+- Ensure all tasks are sufficient.
 - Report on Overleaf
 
 ## How to Run
