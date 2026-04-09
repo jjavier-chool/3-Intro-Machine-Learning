@@ -36,7 +36,7 @@ DATA_TAR = 'aclImdb_v1.tar.gz'
 DATA_DIR = 'aclImdb'
 CSV_FILE = 'movie_data.csv'
 
-input_dim = 10000 #Smaller?
+input_dim = 20000 #Smaller?
 
 start_time: float
 
@@ -147,7 +147,6 @@ def process_data():
 
   #Save outputs
   print("Saving processed data...")
-  joblib.dump(tfidf, 'tfidf_vectorizer.pkl') #Just in case?
   joblib.dump(X_train_tfidf, 'X_train.pkl')
   joblib.dump(X_test_tfidf, 'X_test.pkl')
   joblib.dump(y_train, 'y_train.pkl')

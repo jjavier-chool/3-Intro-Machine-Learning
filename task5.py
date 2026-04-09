@@ -24,7 +24,16 @@ from task2 import FNN
 from task3 import BATCH_SIZE, HIDDEN, train_model, evaluate
 
 DROPOUT = [0.6, 0.4, 0.4]
-DROPOUT_ENSEMBLE = [0.6, 0.4, 0.4]
+
+# More diverse configs (need "different models")
+ENSEMBLE_HIDDEN = [
+    [256, 64, 8],
+    [256, 128, 64],
+    [128, 64, 16],
+    [512, 128, 16],
+    [256, 32, 8]
+]
+ENSEMBLE_DROPOUT = [0.5, 0.55, 0.4, 0.6, 0.45]
 ENSEMBLE_SIZE = 5
 
 def subtask1(train_loader, test_loader):
@@ -72,18 +81,19 @@ def evaluate_ensemble(models, loader):
   return correct / total
 
 def subtask2(dataset, train_loader, test_loader):
-  # Ensemble (Bagging)
   print("\n===== ENSEMBLE (BAGGING) =====")
 
   with perf_timer() as timer:
     models = []
 
-    for i in range(ENSEMBLE_SIZE):
-      print(f"\nTraining model {i+1}/{ENSEMBLE_SIZE}")
+    ENSEMBLE = len(ENSEMBLE_HIDDEN)
+
+    for i, (hidden, dropout) in enumerate(zip(ENSEMBLE_HIDDEN, ENSEMBLE_DROPOUT)):
+      print(f"\nTraining model {i+1}/{ENSEMBLE}")
       indices = bootstrap_indices(len(dataset.train))
       subset = Subset(dataset.train, list(indices))
       bag_loader = DataLoader(subset, batch_size=BATCH_SIZE, shuffle=True)
-      model = FNN(hidden=HIDDEN, dropout=DROPOUT_ENSEMBLE)
+      model = FNN(hidden=hidden, dropout=[dropout]*3)
       model = train_model(model, bag_loader)
 
       train_acc = evaluate(model, train_loader)
@@ -125,5 +135,6 @@ def main(kw=""):
   if test_acc is not None:
     print(f"Is bagging better?: {ensemble_acc > test_acc}")
 
+# Main
 if __name__ == "__main__":
   main()
