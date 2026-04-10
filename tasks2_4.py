@@ -19,7 +19,7 @@ LEARNING_RATE = 0.00005
 WEIGHT_DECAY = 1e-7
 EPOCHS = 10
 BATCH_SIZE = 128
-K_FOLDS = 10
+K_FOLDS = 5
 
 # Load Data
 print("Loading data...")
