@@ -23,7 +23,7 @@ from task1 import load_dataset
 from task2 import FNN
 from task3 import BATCH_SIZE, HIDDEN, train_model, evaluate
 
-DROPOUT = [0.6, 0.4, 0.4]
+DROPOUT = [0.5, 0.5, 0.5]
 
 # More diverse configs (need "different models")
 ENSEMBLE_HIDDEN = [
