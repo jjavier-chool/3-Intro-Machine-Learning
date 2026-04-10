@@ -27,9 +27,19 @@ import torch
 import numpy as np
 from torch.utils.data import ConcatDataset, TensorDataset
 
-warnings.filterwarnings("ignore", message="Sparse invariant checks are implicitly disabled")
-warnings.filterwarnings("ignore", message="Sparse CSR tensor support is in beta state")
-torch.sparse.check_sparse_tensor_invariants(True)
+_initialized = False
+
+def init():
+  global _initialized
+  if _initialized: return
+  _initialized = False
+
+  warnings.filterwarnings("ignore", message="Sparse invariant checks are implicitly disabled")
+  warnings.filterwarnings("ignore", message="Sparse CSR tensor support is in beta state")
+  torch.sparse.check_sparse_tensor_invariants(True)
+
+  # TODO: Find a better place for this
+  torch.manual_seed(42)
 
 DATA_URL = 'http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz'
 DATA_TAR = 'aclImdb_v1.tar.gz'
@@ -197,6 +207,8 @@ class AclIMDB:
     self.full = ConcatDataset([self.train, self.test])
 
 def load_dataset():
+  init()
+
   print("Loading data...")
 
   X_train = joblib.load('X_train.pkl')
