@@ -16,13 +16,13 @@ ENSEMBLE_SIZE = 5
 # More diverse configs (need "different models")
 HIDDEN_CONFIGS = [
     [256, 64, 8],
-    [256, 128, 64],
+    [256, 128, 8],
     [128, 64, 16],
     [512, 128, 16],
     [256, 32, 8]
 ]
 
-DROPOUT_RATES = [0.5, 0.5, 0.5, 0.5, 0.5]
+DROPOUT_RATES = [0.5, 0.6, 0.5, 0.6, 0.5]
 
 # Load Data
 print("Loading data...")
