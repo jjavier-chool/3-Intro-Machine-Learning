@@ -23,26 +23,33 @@ from task1 import load_dataset
 from task2 import FNN
 from task3 import BATCH_SIZE, HIDDEN, train_model, evaluate
 
-DROPOUT = [0.5, 0.5, 0.5]
+DROPOUT = [0.6, 0.4, 0.2]
 
+ENSEMBLE_HIDDEN = [HIDDEN]*5
+ENSEMBLE_DROPOUT = [DROPOUT]*5
+'''
+# Jackie tried different base model sizes:
 # More diverse configs (need "different models")
-ENSEMBLE_HIDDEN = [
+[
     [256, 64, 8],
     [256, 128, 8],
     [128, 64, 16],
     [512, 128, 16],
     [256, 32, 8]
 ]
+
 # For now every layer gets the same dropout, but this could be configurable
 ENSEMBLE_DROPOUT = [0.5, 0.6, 0.5, 0.6, 0.5]
-ENSEMBLE_SIZE = 5
+'''
 
 def subtask1(train_loader, test_loader):
   # Single Dropout Model
   print("\n===== DROPOUT MODEL =====")
 
+  dropout_model = FNN(hidden=HIDDEN, dropout=DROPOUT)
+  print(dropout_model)
+
   with perf_timer() as timer:
-    dropout_model = FNN(hidden=HIDDEN, dropout=DROPOUT)
     dropout_model = train_model(dropout_model, train_loader)
 
     train_acc = evaluate(dropout_model, train_loader)
@@ -97,7 +104,7 @@ def subtask2(dataset, train_loader, test_loader):
       subset = Subset(dataset.train, list(indices))
       bag_loader = DataLoader(subset, batch_size=BATCH_SIZE, shuffle=True)
       
-      model = FNN(hidden=hidden, dropout=[dropout]*3)
+      model = FNN(hidden=hidden, dropout=dropout)
       print(model)
       with perf_timer() as train_timer:
         model = train_model(model, bag_loader)
