@@ -94,26 +94,30 @@ def subtask2(dataset, train_loader, test_loader):
       subset = Subset(dataset.train, list(indices))
       bag_loader = DataLoader(subset, batch_size=BATCH_SIZE, shuffle=True)
       model = FNN(hidden=hidden, dropout=[dropout]*3)
+      print(model)
       model = train_model(model, bag_loader)
 
-      train_acc = evaluate(model, train_loader)
-      test_acc = evaluate(model, test_loader)
+      with timer.pause():
+        train_acc = evaluate(model, train_loader)
+        test_acc = evaluate(model, test_loader)
 
-      print()
-      print(f"Model {i+1} Train Acc: {train_acc:.4f}")
-      print(f"Model {i+1} Test Acc:  {test_acc:.4f}")
+        print()
+        print(f"Model {i+1} Train Acc: {train_acc:.4f}")
+        print(f"Model {i+1} Test Acc:  {test_acc:.4f}")
 
-      models.append(model)
+        models.append(model)
 
-    ensemble_acc = evaluate_ensemble(models, test_loader)
+  train_acc = evaluate_ensemble(models, train_loader)
+  test_acc = evaluate_ensemble(models, test_loader)
 
   total_time = timer.total
 
   print("\nENSEMBLE RESULTS:")
-  print(f"Test Accuracy: {ensemble_acc:.4f}")
+  print(f"Train Accuracy: {train_acc:.4f}")
+  print(f"Test Accuracy: {test_acc:.4f}")
   print(f"Time: {total_time:.2f} sec")
 
-  return ensemble_acc
+  return test_acc
 
 def main(kw=""):
   dataset = load_dataset()

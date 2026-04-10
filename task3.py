@@ -79,12 +79,13 @@ def baseline_training(model):
   train_loader = DataLoader(dataset.train, batch_size=BATCH_SIZE, shuffle=True)
   test_loader = DataLoader(dataset.test, batch_size=BATCH_SIZE)
 
+  print(model)
+  
   with perf_timer() as timer:
-    print(model)
     model = train_model(model, train_loader, weight_decay=WEIGHT_DECAY)
 
-    train_acc = evaluate(model, train_loader)
-    test_acc = evaluate(model, test_loader)
+  train_acc = evaluate(model, train_loader)
+  test_acc = evaluate(model, test_loader)
 
   total_time = timer.total
 
