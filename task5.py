@@ -22,7 +22,7 @@ HIDDEN_CONFIGS = [
     [256, 32, 8]
 ]
 
-DROPOUT_RATES = [0.5, 0.55, 0.4, 0.6, 0.45]
+DROPOUT_RATES = [0.5, 0.5, 0.5, 0.5, 0.5]
 
 # Load Data
 print("Loading data...")
@@ -154,21 +154,22 @@ if __name__ == "__main__":
 
   start_time = time.time()
   dropout_model = train_model(dropout_model, train_loader)
+  train_time = time.time() - start_time
 
   train_acc = evaluate(dropout_model, train_loader)
+  start_time = time.time()
   test_acc = evaluate(dropout_model, test_loader)
-
-  total_time = time.time() - start_time
+  test_time = time.time() - start_time
 
   print("\nDROPOUT RESULTS:")
-  print(f"Train Accuracy: {train_acc:.4f}")
-  print(f"Test Accuracy:  {test_acc:.4f}")
-  print(f"Time: {total_time:.2f} sec")
+  print(f"Train Accuracy: {train_acc:.4f}, Train Time: {train_time:.2f} sec")
+  print(f"Test Accuracy:  {test_acc:.4f}, Test Time: {test_time:.2f} sec")
 
   # Ensemble (Bagging)
   print("\n===== ENSEMBLE (BAGGING) =====")
 
   models = []
+  train_time = 0
 
   start_time = time.time()
   for i in range(ENSEMBLE_SIZE):
@@ -188,14 +189,21 @@ if __name__ == "__main__":
       DROPOUT_RATES[i]
     )
 
+    now = time.time()
     model = train_model(model, loader)
+    train_time += time.time() - now
     models.append(model)
+    train_acc = evaluate(model, train_loader)
 
+    print(f"Model {i+1} Train Acc: {train_acc:.4f}")
+
+  now = time.time()
   ensemble_acc = evaluate_ensemble(models, test_loader)
+  test_time = time.time() - now
 
   total_time = time.time() - start_time
 
   print("\nENSEMBLE RESULTS:")
-  print(f"Test Accuracy: {ensemble_acc:.4f}")
-  print(f"Time: {total_time:.2f} sec")
+  print(f"Test Accuracy: {ensemble_acc:.4f}, Test Time: {test_time:.2f} sec")
+  print(f"TOTAL Time: {total_time:.2f} sec, Train Time: {train_time:.2f} sec")
   print(f"Is ensemble better?: {ensemble_acc > test_acc}")

@@ -10,7 +10,7 @@ import time
 """
 Intro to Machine Learning Midterm
 Encompasses the solution to Tasks 2-4.
-Code is adopted and modified from given tutorial in the instructions.
+Code is adopted and modified from the given tutorial in the instructions.
 Students: Jackie Javier, Pranitha Achanta, Robert McDaniels
 """
 # Manual tuning
@@ -29,7 +29,6 @@ X_test = joblib.load('X_test.pkl')
 y_train = joblib.load('y_train.pkl')
 y_test = joblib.load('y_test.pkl')
 
-# Convert sparse → dense → tensor
 torch.manual_seed(42)
 X_train = torch.tensor(X_train.toarray(), dtype=torch.float32)
 X_test = torch.tensor(X_test.toarray(), dtype=torch.float32)
@@ -51,6 +50,15 @@ class FNN(nn.Module):
       *(L for (i, o) in zip(SZ, SZ[1:]) for L in [nn.Linear(i, o), nn.ReLU()]),
       nn.Linear(SZ[-1], 1),
     )
+
+    # Equivalent to below (but flexible):
+    # nn.Linear(input_dim, HIDDEN[0]),
+    # nn.ReLU(),
+    # nn.Linear(HIDDEN[0], HIDDEN[1]),
+    # nn.ReLU(),
+    # nn.Linear(HIDDEN[1], HIDDEN[2]),
+    # nn.ReLU(),
+    # nn.Linear(HIDDEN[2], 1)
 
   def forward(self, x):
     return self.net(x).squeeze()
@@ -112,18 +120,17 @@ def baseline_training(model):
   test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
   start_time = time.time()
-
   model = train_model(model, train_loader)
+  train_time = time.time() - start_time
 
   train_acc = evaluate(model, train_loader)
+  start_time = time.time()
   test_acc = evaluate(model, test_loader)
-
-  total_time = time.time() - start_time
+  test_time = time.time() - start_time
 
   print("\nBASELINE RESULTS:")
-  print(f"Train Accuracy: {train_acc:.4f}")
-  print(f"Test Accuracy:  {test_acc:.4f}")
-  print(f"Time: {total_time:.2f} sec")
+  print(f"Train Accuracy: {train_acc:.4f}, Train Time: {train_time:.2f} sec")
+  print(f"Test Accuracy:  {test_acc:.4f}, Test Time: {test_time:.2f} sec")
 
   return test_acc
 
@@ -135,6 +142,10 @@ def kfold_training():
 
   train_accs = []
   val_accs = []
+  models = []
+
+  train_time = 0
+  val_time = 0
 
   start_time = time.time()
 
@@ -154,10 +165,17 @@ def kfold_training():
 
     model = FNN(input_dim)
 
+    now = time.time()
     model = train_model(model, train_loader)
+    later = time.time() - now
+    train_time += later
+    models.append(model)
 
     train_acc = evaluate(model, train_loader)
+    now = time.time()
     val_acc = evaluate(model, val_loader)
+    later = time.time() - now
+    val_time += later
 
     print(f"Fold {fold+1} Train Acc: {train_acc:.4f}")
     print(f"Fold {fold+1} Val Acc:   {val_acc:.4f}")
@@ -168,9 +186,9 @@ def kfold_training():
   total_time = time.time() - start_time
 
   print("\nK-FOLD RESULTS:")
-  print(f"Avg Train Accuracy: {np.mean(train_accs):.4f}")
-  print(f"Avg Validation Accuracy: {np.mean(val_accs):.4f}")
-  print(f"Time: {total_time:.2f} sec")
+  print(f"Avg Train Accuracy: {np.mean(train_accs):.4f}, Train Time: {train_time:.2f} sec")
+  print(f"Avg Validation Accuracy: {np.mean(val_accs):.4f}, Validation Time: {val_time:.2f} sec")
+  print(f"TOTAL Time: {total_time:.2f} sec")
 
   return np.mean(val_accs)
 
