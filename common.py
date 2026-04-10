@@ -18,8 +18,12 @@ class perf_timer:
         self.end = perf_counter()
     
     @property
+    def unpaused(self):
+        return self.end - self.start
+
+    @property
     def total(self):
-        return self.end - self.start - self.paused
+        return self.unpaused - self.paused
     
     @contextmanager
     def pause(self):

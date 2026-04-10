@@ -47,7 +47,7 @@ def download_dataset():
     return
 
   if not os.path.exists(DATA_TAR):
-    print("Downloading dataset...") #Ellipses feel good for these prints lol
+    print("Downloading dataset...")
 
     def reporthook(count, block_size, total_size):
       global start_time
@@ -116,6 +116,7 @@ def tokenizer(text):
 def process_data():
   print("Loading CSV...")
   df = pd.read_csv(CSV_FILE, encoding='utf-8')
+  print("df:", df.shape)
 
   X = df['review'].values
   y = df['sentiment'].values

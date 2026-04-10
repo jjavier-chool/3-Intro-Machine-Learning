@@ -28,12 +28,12 @@ DROPOUT = [0.6, 0.4, 0.4]
 # More diverse configs (need "different models")
 ENSEMBLE_HIDDEN = [
     [256, 64, 8],
-    [256, 128, 64],
+    [256, 128, 8],
     [128, 64, 16],
     [512, 128, 16],
     [256, 32, 8]
 ]
-ENSEMBLE_DROPOUT = [0.5, 0.55, 0.4, 0.6, 0.45]
+ENSEMBLE_DROPOUT = [0.5, 0.6, 0.5, 0.6, 0.5]
 ENSEMBLE_SIZE = 5
 
 def subtask1(train_loader, test_loader):
@@ -83,11 +83,13 @@ def evaluate_ensemble(models, loader):
 def subtask2(dataset, train_loader, test_loader):
   print("\n===== ENSEMBLE (BAGGING) =====")
 
+  train_time = 0
+  
+  models = []
+
+  ENSEMBLE = len(ENSEMBLE_HIDDEN)
+
   with perf_timer() as timer:
-    models = []
-
-    ENSEMBLE = len(ENSEMBLE_HIDDEN)
-
     for i, (hidden, dropout) in enumerate(zip(ENSEMBLE_HIDDEN, ENSEMBLE_DROPOUT)):
       print(f"\nTraining model {i+1}/{ENSEMBLE}")
       indices = bootstrap_indices(len(dataset.train))
@@ -95,29 +97,19 @@ def subtask2(dataset, train_loader, test_loader):
       bag_loader = DataLoader(subset, batch_size=BATCH_SIZE, shuffle=True)
       model = FNN(hidden=hidden, dropout=[dropout]*3)
       print(model)
-      model = train_model(model, bag_loader)
+      with perf_timer() as train_timer:
+        model = train_model(model, bag_loader)
+      train_time += train_timer.total
 
-      with timer.pause():
-        train_acc = evaluate(model, train_loader)
-        test_acc = evaluate(model, test_loader)
-
-        print()
-        print(f"Model {i+1} Train Acc: {train_acc:.4f}")
-        print(f"Model {i+1} Test Acc:  {test_acc:.4f}")
-
-        models.append(model)
-
-  train_acc = evaluate_ensemble(models, train_loader)
-  test_acc = evaluate_ensemble(models, test_loader)
+  ensemble_acc = evaluate_ensemble(models, test_loader)
 
   total_time = timer.total
 
   print("\nENSEMBLE RESULTS:")
-  print(f"Train Accuracy: {train_acc:.4f}")
-  print(f"Test Accuracy: {test_acc:.4f}")
-  print(f"Time: {total_time:.2f} sec")
+  print(f"Test Accuracy: {ensemble_acc:.4f}, Test Time: {test_time:.2f} sec")
+  print(f"TOTAL Time: {total_time:.2f} sec, Train Time: {train_time:.2f} sec")
 
-  return test_acc
+  return ensemble_acc
 
 def main(kw=""):
   dataset = load_dataset()
@@ -137,7 +129,7 @@ def main(kw=""):
   ensemble_acc = subtask2(dataset, train_loader, test_loader)
   
   if test_acc is not None:
-    print(f"Is bagging better?: {ensemble_acc > test_acc}")
+    print(f"Is ensemble better?: {ensemble_acc > test_acc}")
 
 # Main
 if __name__ == "__main__":

@@ -21,7 +21,7 @@ from common import perf_timer
 # Manual tuning
 HIDDEN = [256, 64, 6]
 LEARNING_RATE = 0.00005
-WEIGHT_DECAY = 0.0002
+WEIGHT_DECAY = 1e-7 #0.0002
 EPOCHS = 10
 BATCH_SIZE = 128
 
@@ -80,7 +80,7 @@ def baseline_training(model):
   test_loader = DataLoader(dataset.test, batch_size=BATCH_SIZE)
 
   print(model)
-  
+
   with perf_timer() as timer:
     model = train_model(model, train_loader, weight_decay=WEIGHT_DECAY)
 

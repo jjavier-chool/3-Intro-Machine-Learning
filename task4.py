@@ -19,7 +19,7 @@ import numpy as np
 from common import perf_timer
 from task1 import load_dataset
 from task2 import FNN
-from task3 import HIDDEN, BATCH_SIZE, train_model, evaluate
+from task3 import HIDDEN, BATCH_SIZE, baseline_training, train_model, evaluate
 
 K_FOLDS = 5
 
@@ -32,42 +32,54 @@ def kfold_training():
   train_accs = []
   val_accs = []
 
+  train_time = 0
+  val_time = 0
+
   dataset = load_dataset()
 
   with perf_timer() as timer:
     for fold, (train_idx, val_idx) in enumerate(kf.split(dataset.full)):
-        print(f"\n--- Fold {fold+1}/{K_FOLDS} ---")
+      print(f"\n--- Fold {fold+1}/{K_FOLDS} ---")
 
-        train_dataset = Subset(dataset.full, train_idx)
-        val_dataset = Subset(dataset.full, val_idx)
+      train_dataset = Subset(dataset.full, train_idx)
+      val_dataset = Subset(dataset.full, val_idx)
 
-        train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-        val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
+      train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+      val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
 
-        model = FNN(hidden=HIDDEN)
+      model = FNN(hidden=HIDDEN)
 
+      with perf_timer() as train_timer:
         model = train_model(model, train_loader)
+      
+      train_time += train_timer.total
 
-        train_acc = evaluate(model, train_loader)
+      train_acc = evaluate(model, train_loader)
+
+      with perf_timer() as val_timer:
         val_acc = evaluate(model, val_loader)
+      
+      val_time += val_timer.total
 
-        print(f"Fold {fold+1} Train Acc: {train_acc:.4f}")
-        print(f"Fold {fold+1} Val Acc:   {val_acc:.4f}")
+      print(f"Fold {fold+1} Train Acc: {train_acc:.4f}")
+      print(f"Fold {fold+1} Val Acc:   {val_acc:.4f}")
 
-        train_accs.append(train_acc)
-        val_accs.append(val_acc)
+      train_accs.append(train_acc)
+      val_accs.append(val_acc)
 
   total_time = timer.total
 
   print("\nK-FOLD RESULTS:")
-  print(f"Avg Train Accuracy: {np.mean(train_accs):.4f}")
-  print(f"Avg Validation Accuracy: {np.mean(val_accs):.4f}")
-  print(f"Time: {total_time:.2f} sec")
+  print(f"Avg Train Accuracy: {np.mean(train_accs):.4f}, Train Time: {train_time:.2f} sec")
+  print(f"Avg Validation Accuracy: {np.mean(val_accs):.4f}, Validation Time: {val_time:.2f} sec")
+  print(f"TOTAL Time: {total_time:.2f} sec")
 
   return np.mean(train_accs), np.mean(val_accs), total_time
 
 def main():
-    kfold_training()
+  acc1 = baseline_training(model = FNN(HIDDEN))
+  acc2 = kfold_training()
+  print(f"Is k-fold better?: {acc2 > acc1}")
 
 if __name__ == "__main__":
     main()

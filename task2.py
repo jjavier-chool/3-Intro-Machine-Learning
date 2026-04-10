@@ -16,7 +16,7 @@ from task1 import input_dim
 class FNN(nn.Module):
   def __init__(self, hidden: list[int], dropout: list[float]|None = None):
     super(FNN, self).__init__()
-    SZ = [input_dim, *hidden]
+    SZ = [input_dim] + hidden
 
     # Flag if dropout is even used to avoid clutter in the printout
     use_dropout = dropout is not None
