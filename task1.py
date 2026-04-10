@@ -31,7 +31,7 @@ _initialized = False
 
 def init():
   global _initialized
-  if _initialized: return
+  if _initialized: return False
   _initialized = False
 
   warnings.filterwarnings("ignore", message="Sparse invariant checks are implicitly disabled")
@@ -40,6 +40,8 @@ def init():
 
   # TODO: Find a better place for this
   torch.manual_seed(42)
+
+  return True
 
 DATA_URL = 'http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz'
 DATA_TAR = 'aclImdb_v1.tar.gz'
@@ -168,6 +170,7 @@ def process_data():
 # Densifying sparse matrix quickly causes OOM issues
 # CSR: Compressed Sparse Row
 # COO: COOrdinate Matrix
+# Kept just in case
 def csr_to_torch_coo(X):
   coo = X.tocoo()
   indices = torch.from_numpy(np.vstack((coo.row, coo.col))).long()
@@ -180,17 +183,20 @@ def csr_to_torch_coo(X):
   )
 
 def csr_to_torch_csr(X):
-    row_indices = torch.from_numpy(X.indptr).long()
-    col_indices = torch.from_numpy(X.indices).long()
-    values = torch.from_numpy(X.data).float()
-    return torch.sparse_csr_tensor(
-        crow_indices=row_indices,
-        col_indices=col_indices,
-        values=values,
-        size=X.shape
-    )
+  '''Convert scipy CSR to torch CSR'''
+  row_indices = torch.from_numpy(X.indptr).long()
+  col_indices = torch.from_numpy(X.indices).long()
+  values = torch.from_numpy(X.data).float()
+  return torch.sparse_csr_tensor(
+      crow_indices=row_indices,
+      col_indices=col_indices,
+      values=values,
+      size=X.shape
+  )
 
 class AclIMDB:
+  '''Container for data loaded from the acl IMDB dataset.'''
+
   train: TensorDataset
   test: TensorDataset
   full: ConcatDataset[TensorDataset]
@@ -206,15 +212,24 @@ class AclIMDB:
     self.test = TensorDataset(X_test, y_test)
     self.full = ConcatDataset([self.train, self.test])
 
+# Cache these so subsequent tasks don't have to reload them
+X_train = None
+y_train = None
+X_test = None
+y_test = None
+
 def load_dataset():
-  init()
+  '''Load the acl IMDB dataset, integral to task1.'''
 
-  print("Loading data...")
+  global X_train, y_train, X_test, y_test
 
-  X_train = joblib.load('X_train.pkl')
-  y_train = joblib.load('y_train.pkl')
-  X_test = joblib.load('X_test.pkl')
-  y_test = joblib.load('y_test.pkl')
+  if init():
+    print("Loading data...")
+
+    X_train = joblib.load('X_train.pkl')
+    y_train = joblib.load('y_train.pkl')
+    X_test = joblib.load('X_test.pkl')
+    y_test = joblib.load('y_test.pkl')
 
   return AclIMDB(X_train, y_train, X_test, y_test)
 

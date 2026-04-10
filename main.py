@@ -37,6 +37,9 @@ def main(which: str = 'all', *rest):
   for wh in which.split(','):
     if wh in seen:
       print(f"Ignoring {wh}, already seen")
+    
+    if seen: print()
+    seen.add(wh)
     invoke(int(wh), *rest)
 
 if __name__ == "__main__":

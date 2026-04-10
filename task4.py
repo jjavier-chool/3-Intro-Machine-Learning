@@ -74,7 +74,7 @@ def kfold_training():
   print(f"Avg Validation Accuracy: {np.mean(val_accs):.4f}, Validation Time: {val_time:.2f} sec")
   print(f"TOTAL Time: {total_time:.2f} sec")
 
-  return np.mean(train_accs), np.mean(val_accs), total_time
+  return np.mean(val_accs)
 
 def main():
   acc1 = baseline_training(model = FNN(HIDDEN))

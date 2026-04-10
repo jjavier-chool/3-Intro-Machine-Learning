@@ -19,9 +19,9 @@ from task1 import load_dataset
 from common import perf_timer
 
 # Manual tuning
-HIDDEN = [256, 64, 6]
+HIDDEN = [128, 64, 16]
 LEARNING_RATE = 0.00005
-WEIGHT_DECAY = 1e-7 #0.0002
+WEIGHT_DECAY = 0.0002
 EPOCHS = 10
 BATCH_SIZE = 128
 
@@ -94,7 +94,7 @@ def baseline_training(model):
   print(f"Test Accuracy:  {test_acc:.4f}")
   print(f"Time: {total_time:.2f} sec")
 
-  return train_acc, test_acc, total_time
+  return test_acc
 
 def main():
   from task2 import FNN
