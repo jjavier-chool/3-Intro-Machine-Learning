@@ -33,6 +33,7 @@ ENSEMBLE_HIDDEN = [
     [512, 128, 16],
     [256, 32, 8]
 ]
+# For now every layer gets the same dropout, but this could be configurable
 ENSEMBLE_DROPOUT = [0.5, 0.6, 0.5, 0.6, 0.5]
 ENSEMBLE_SIZE = 5
 
