@@ -16,7 +16,7 @@ Students: Jackie Javier, Pranitha Achanta, Robert McDaniels
 # Manual tuning
 HIDDEN = [256, 64, 8]
 LEARNING_RATE = 0.00005
-WEIGHT_DECAY = 1e-7
+WEIGHT_DECAY = 0.0002
 EPOCHS = 10
 BATCH_SIZE = 128
 K_FOLDS = 5
@@ -142,7 +142,6 @@ def kfold_training():
 
   train_accs = []
   val_accs = []
-  models = []
 
   train_time = 0
   val_time = 0
@@ -169,7 +168,6 @@ def kfold_training():
     model = train_model(model, train_loader)
     later = time.time() - now
     train_time += later
-    models.append(model)
 
     train_acc = evaluate(model, train_loader)
     now = time.time()

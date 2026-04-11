@@ -8,7 +8,7 @@ import time
 
 # Hyperparameters
 LEARNING_RATE = 0.00005
-WEIGHT_DECAY = 1e-7
+WEIGHT_DECAY = 0.0002
 EPOCHS = 10
 BATCH_SIZE = 128
 ENSEMBLE_SIZE = 5
@@ -19,7 +19,7 @@ HIDDEN_CONFIGS = [
     [256, 128, 8],
     [128, 64, 16],
     [512, 128, 16],
-    [256, 32, 8]
+    [256, 32, 8],
 ]
 
 DROPOUT_RATES = [0.5, 0.6, 0.5, 0.6, 0.5]
@@ -200,10 +200,12 @@ if __name__ == "__main__":
   now = time.time()
   ensemble_acc = evaluate_ensemble(models, test_loader)
   test_time = time.time() - now
+  ensemble_tacc = evaluate_ensemble(models, train_loader)
 
   total_time = time.time() - start_time
 
   print("\nENSEMBLE RESULTS:")
   print(f"Test Accuracy: {ensemble_acc:.4f}, Test Time: {test_time:.2f} sec")
-  print(f"TOTAL Time: {total_time:.2f} sec, Train Time: {train_time:.2f} sec")
+  print(f"Train Accuracy: {ensemble_tacc:.4f}, Train Time: {train_time:.2f} sec")
+  print(f"TOTAL Time: {total_time:.2f} sec")
   print(f"Is ensemble better?: {ensemble_acc > test_acc}")
