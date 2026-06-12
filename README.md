@@ -3,11 +3,7 @@ The third assignment for CS429. To download and decompress the dataset, execute:
 ```
 tar -zxf aclImdb_v1.tar.gz
 ```
-The file is given at https://ai.stanford.edu/~amaas/data/sentiment/.
-
-## TODO:
-- Ensure all tasks are sufficient.
-- Report on Overleaf
+The file is given at https://ai.stanford.edu/~amaas/data/sentiment/. Alternatively, run task1.py.
 
 ## How to Run
 You can run tasks manually using each of:
